@@ -3,12 +3,14 @@ package com.springboot.blog.controller;
 
 import com.springboot.blog.entity.Role;
 import com.springboot.blog.entity.User;
+import com.springboot.blog.payload.ErrorDetails;
 import com.springboot.blog.payload.JWTAuthResponse;
 import com.springboot.blog.payload.LoginDto;
 import com.springboot.blog.payload.SignUpDto;
 import com.springboot.blog.repository.RoleRepository;
 import com.springboot.blog.repository.UserRepository;
 import com.springboot.blog.security.JwtTokenProvider;
+import com.springboot.blog.service.AuthService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
@@ -47,6 +50,9 @@ public class AuthController {
     
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+    
+    @Autowired
+    private AuthService authService;
 
     @ApiOperation(value = "API use for login")
     @PostMapping("/signin")
@@ -89,6 +95,18 @@ public class AuthController {
 
         return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
 
+    }
+    
+    @PostMapping("/reset")
+    public ResponseEntity<String> resetPassword(@RequestParam("userNameOrEmailId") String userNameOrEmailId
+    		,@RequestParam("password") String password){
+    	String response=authService.resetpassowrd(userNameOrEmailId,password);
+    	if(response.isEmpty()) {
+    		return new ResponseEntity<>("Sorry your account is not registered,Please Signup.......",HttpStatus.BAD_REQUEST);
+    		
+    	}
+		return new ResponseEntity<>(authService.resetpassowrd(userNameOrEmailId,password),HttpStatus.OK);
+    	
     }
 }
 
